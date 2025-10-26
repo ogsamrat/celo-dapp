@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CeloRefer - Dashboard</title>
-    <link rel="stylesheet" href="../css/app.css?v=12">
-    <link rel="stylesheet" href="../css/badge-nft-bw.css?v=12">
+    <link rel="stylesheet" href="../css/app.css?v=20">
+    <link rel="stylesheet" href="../css/badge-nft-bw.css?v=20">
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
 </head>
 <body>
@@ -13,19 +13,68 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <div class="logo">
-                <h1>CeloRefer</h1>
-                <p>Dashboard</p>
-            </div>
-            <div class="wallet-section">
-                <button id="connectWallet" class="btn btn-primary">Connect MetaMask</button>
-                <div id="walletInfo" class="wallet-info hidden">
-                    <div class="network-indicator" id="networkIndicator">
-                        <span class="dot"></span>
-                        <span id="networkName">Alfajores</span>
+            <div class="header-container">
+                <div class="header-left">
+                    <a href="../index.html" class="logo-link">
+                        <div class="logo">
+                            <div class="logo-icon">CR</div>
+                            <div class="logo-text">
+                                <h1>CeloRefer</h1>
+                                <p>Decentralized Growth</p>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <!-- Navigation Tabs -->
+                    <nav class="nav-tabs">
+                        <button class="nav-tab active" data-tab="dashboard">
+                            <span class="nav-tab-icon"></span>
+                            <span>Dashboard</span>
+                        </button>
+                        <button class="nav-tab" data-tab="register">
+                            <span class="nav-tab-icon"></span>
+                            <span>Register</span>
+                        </button>
+                        <button class="nav-tab" data-tab="quests">
+                            <span class="nav-tab-icon"></span>
+                            <span>Quests</span>
+                        </button>
+                        <button class="nav-tab" data-tab="seasons">
+                            <span class="nav-tab-icon"></span>
+                            <span>Seasons</span>
+                        </button>
+                        <button class="nav-tab" data-tab="leaderboard">
+                            <span class="nav-tab-icon"></span>
+                            <span>Leaderboard</span>
+                        </button>
+                        <button class="nav-tab" data-tab="staking">
+                            <span class="nav-tab-icon"></span>
+                            <span>Staking</span>
+                        </button>
+                        <button class="nav-tab admin-only hidden" data-tab="admin">
+                            <span class="nav-tab-icon"></span>
+                            <span>Admin</span>
+                        </button>
+                    </nav>
+                </div>
+                
+                <div class="header-right">
+                    <button id="connectWallet" class="btn btn-connect">
+                        <span>Connect Wallet</span>
+                    </button>
+                    <div id="walletInfo" class="wallet-info hidden">
+                        <div class="wallet-network">
+                            <span class="network-dot"></span>
+                            <span id="networkName">Alfajores</span>
+                        </div>
+                        <div class="wallet-details">
+                            <div class="wallet-address" id="walletAddress"></div>
+                            <div class="wallet-balance" id="walletBalance">0 cUSD</div>
+                        </div>
+                        <button id="disconnectWallet" class="btn-disconnect" title="Disconnect wallet">
+                            <span>×</span>
+                        </button>
                     </div>
-                    <div class="wallet-address" id="walletAddress"></div>
-                    <div class="wallet-balance" id="walletBalance">0 cUSD</div>
                 </div>
             </div>
         </header>
@@ -35,97 +84,115 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Navigation Tabs -->
-            <nav class="tabs">
-                <button class="tab active" data-tab="dashboard">Dashboard</button>
-                <button class="tab" data-tab="register">Register</button>
-                <button class="tab" data-tab="quests">Quests</button>
-                <button class="tab" data-tab="seasons">Seasons</button>
-                <button class="tab" data-tab="leaderboard">Leaderboard</button>
-                <button class="tab" data-tab="staking">Staking</button>
-                <button class="tab" data-tab="admin">Admin</button>
-            </nav>
 
             <!-- Dashboard Tab -->
             <section id="dashboard" class="tab-content active">
-                <h2>Dashboard</h2>
+                <br></br>
                 
-                <!-- User Status Card -->
-                <div class="card">
-                    <h3>Your Profile</h3>
-                    <div id="userProfile" class="profile-grid">
-                        <div class="stat-card">
-                            <div class="stat-label">Registration Status</div>
-                            <div class="stat-value" id="registrationStatus">Not Connected</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Referral Code</div>
-                            <div class="stat-value" id="referralCode">-</div>
-                            <button id="copyCodeBtn" class="btn btn-sm btn-secondary hidden">Copy</button>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Total Referrals</div>
-                            <div class="stat-value" id="totalReferrals">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Total Earned</div>
-                            <div class="stat-value" id="totalEarned">0 cUSD</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Total Actions</div>
-                            <div class="stat-value" id="totalActions">0</div>
+                <!-- Overview Section -->
+                <div class="dashboard-header">
+                    <div class="dashboard-status">
+                        <div class="status-indicator">
+                            <span class="status-label">Account Status</span>
+                            <span class="status-value" id="registrationStatus">Not Connected</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- NFT Badge Display -->
-                <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h3 style="margin: 0;">Your Badge NFT</h3>
-                        <button id="refreshBadgeBtn" class="btn btn-sm btn-secondary" onclick="refreshBadge()" title="Refresh badge from blockchain">
-                            🔄 Refresh
-                        </button>
-                    </div>
-                    <div id="nftBadgeDisplay"></div>
-                    <div style="text-align: center; margin-top: 15px; opacity: 0.7; font-size: 0.85rem;">
-                        <span id="lastRefreshTime">Auto-refreshes every 30 seconds</span>
-                    </div>
-                </div>
-
-                <!-- Badge Gallery -->
-                <div class="card">
-                    <h3>🎨 Badge Collection</h3>
-                    <p style="margin-bottom: 24px; color: var(--gray-600);">Unlock higher tier NFT badges by referring more users</p>
-                    <div id="badgeGallery" class="nft-badge-gallery"></div>
-                    <div id="tierRequirements" class="nft-tier-requirements"></div>
-                </div>
-
-                <!-- Reward Rates -->
-                <div class="card">
-                    <h3>Your Reward Rates</h3>
-                    <div class="reward-rates">
-                        <div class="rate-item">
-                            <span class="rate-label">Level 1 (Direct):</span>
-                            <span class="rate-value" id="level1Rate">-</span>
+                <!-- Key Metrics Grid -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-label">Total Referrals</span>
                         </div>
-                        <div class="rate-item">
-                            <span class="rate-label">Level 2 (Indirect):</span>
-                            <span class="rate-value" id="level2Rate">-</span>
+                        <div class="metric-value" id="totalReferrals">0</div>
+                        <div class="metric-change">Lifetime count</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-label">Total Earned</span>
                         </div>
+                        <div class="metric-value" id="totalEarned">0 cUSD</div>
+                        <div class="metric-change">Cumulative rewards</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-label">Referral Code</span>
+                        </div>
+                        <div class="metric-value metric-code" id="referralCode">-</div>
+                        <button id="copyCodeBtn" class="btn btn-sm btn-secondary hidden" style="width: 100%; margin-top: 12px;">Copy Code</button>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-label">Total Actions</span>
+                        </div>
+                        <div class="metric-value" id="totalActions">0</div>
+                        <div class="metric-change">Activity count</div>
                     </div>
                 </div>
 
-                <!-- Referral Tree -->
-                <div class="card">
-                    <h3>Referral Tree</h3>
-                    <div id="referralTree" class="referral-tree">
-                        <div class="tree-item">
-                            <span class="tree-label">Direct Referrer:</span>
-                            <span class="tree-value" id="directReferrer">-</span>
+                <!-- Main Content Grid -->
+                <div class="dashboard-grid">
+                    <!-- Left Column -->
+                    <div class="dashboard-column">
+                        <!-- Badge Display -->
+                        <div class="card">
+                            <div class="card-header-row">
+                                <h3>Current Badge</h3>
+                                <button id="refreshBadgeBtn" class="btn btn-sm btn-secondary" onclick="refreshBadge()" title="Refresh badge from blockchain">
+                                    Refresh
+                                </button>
+                            </div>
+                            <div id="nftBadgeDisplay"></div>
+                            <div class="card-footer-note">
+                                <span id="lastRefreshTime">Auto-refreshes every 30 seconds</span>
+                            </div>
                         </div>
-                        <div class="tree-item">
-                            <span class="tree-label">Parent Referrer:</span>
-                            <span class="tree-value" id="parentReferrer">-</span>
+
+                        <!-- Referral Network -->
+                        <div class="card">
+                            <h3>Referral Network</h3>
+                            <p class="card-description">Your position in the referral tree</p>
+                            <div id="referralTree" class="referral-tree">
+                                <div class="tree-item">
+                                    <span class="tree-label">Direct Referrer</span>
+                                    <span class="tree-value" id="directReferrer">-</span>
+                                </div>
+                                <div class="tree-item">
+                                    <span class="tree-label">Parent Referrer</span>
+                                    <span class="tree-value" id="parentReferrer">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="dashboard-column">
+                        <!-- Badge Collection -->
+                        <div class="card">
+                            <h3>Badge Collection</h3>
+                            <p class="card-description">Unlock higher tier badges by referring more users</p>
+                            <div id="badgeGallery" class="nft-badge-gallery"></div>
+                            <div id="tierRequirements" class="nft-tier-requirements"></div>
+                        </div>
+
+                        <!-- Reward Rates -->
+                        <div class="card">
+                            <h3>Reward Structure</h3>
+                            <p class="card-description">Earn rewards from your referral network</p>
+                            <div class="reward-rates">
+                                <div class="rate-item">
+                                    <span class="rate-label">Direct Referrals (Level 1)</span>
+                                    <span class="rate-value" id="level1Rate">-</span>
+                                </div>
+                                <div class="rate-item">
+                                    <span class="rate-label">Indirect Referrals (Level 2)</span>
+                                    <span class="rate-value" id="level2Rate">-</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -133,8 +200,7 @@
 
             <!-- Register Tab -->
             <section id="register" class="tab-content">
-                <h2>Register</h2>
-                
+                <br></br>
                 <div class="card">
                     <h3>New User Registration</h3>
                     <p>Join the CeloRefer network and start earning rewards!</p>
@@ -187,8 +253,7 @@
 
             <!-- Quests Tab -->
             <section id="quests" class="tab-content">
-                <h2>Quests</h2>
-                
+                <br></br>
                 <div class="card">
                     <h3>Active Quests</h3>
                     <div id="questsList" class="quests-list">
@@ -219,8 +284,7 @@
 
             <!-- Seasons Tab -->
             <section id="seasons" class="tab-content">
-                <h2>Seasonal Competition</h2>
-                
+                <br></br>
                 <div class="card">
                     <h3>Current Season</h3>
                     <div id="currentSeason" class="season-info">
@@ -263,9 +327,7 @@
 
             <!-- Leaderboard Tab -->
             <section id="leaderboard" class="tab-content">
-                <h2>Leaderboard</h2>
-                <p>Top referrers ranked by total referral count</p>
-                
+                <br></br>                
                 <div class="card">
                     <h3>Top 50 Referrers</h3>
                     <div id="leaderboardList" class="quests-list">
@@ -276,7 +338,6 @@
 
             <!-- Staking Tab -->
             <section id="staking" class="tab-content">
-                <h2>Staking</h2>
                 
                 <div class="card">
                     <h3>Your Stake</h3>
@@ -334,7 +395,6 @@
 
             <!-- Admin Tab -->
             <section id="admin" class="tab-content">
-                <h2>Admin Panel</h2>
                 
                 <div class="card admin-only">
                     <h3>Partner Management</h3>
@@ -427,8 +487,8 @@
     </div>
 
     <!-- Scripts -->
-    <script src="../sdk/celoRefer-sdk.js?v=12"></script>
-    <script src="../js/app.js?v=12"></script>
+    <script src="../sdk/celoRefer-sdk.js?v=20"></script>
+    <script src="../js/app.js?v=20"></script>
 </body>
 </html>
 

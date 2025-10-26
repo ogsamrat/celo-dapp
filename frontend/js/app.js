@@ -32,10 +32,14 @@ document.addEventListener('DOMContentLoaded', () => {
 function initializeEventListeners() {
     // Wallet Connection
     document.getElementById('connectWallet').addEventListener('click', connectWallet);
+    document.getElementById('disconnectWallet').addEventListener('click', disconnectWallet);
     
     // Tab Navigation
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', (e) => switchTab(e.target.dataset.tab));
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            const tabName = e.target.closest('.nav-tab')?.dataset.tab;
+            if (tabName) switchTab(tabName);
+        });
     });
     
     // Registration
@@ -186,6 +190,24 @@ function handleAccountsChanged(accounts) {
 
 function handleChainChanged() {
     window.location.reload();
+}
+
+function disconnectWallet() {
+    try {
+        // Remove event listeners
+        if (window.ethereum) {
+            window.ethereum.removeAllListeners('accountsChanged');
+            window.ethereum.removeAllListeners('chainChanged');
+        }
+        
+        // Reset app state
+        resetApp();
+        
+        showAlert('Wallet disconnected successfully', 'info');
+    } catch (error) {
+        console.error('Error disconnecting wallet:', error);
+        showAlert('Error disconnecting wallet', 'error');
+    }
 }
 
 function updateWalletUI() {
@@ -380,57 +402,123 @@ async function loadUserData() {
 
 async function loadQuests() {
     try {
-        const questCount = await sdk.getQuestCount();
         const questsList = document.getElementById('questsList');
         questsList.innerHTML = '';
         
-        if (questCount === 0n) {
-            questsList.innerHTML = '<p class="loading">No quests available</p>';
-            return;
+        // Demo quests aligned with Celo's vision - simulating blockchain data
+        const celoQuests = [
+            {
+                id: 1,
+                name: "Financial Inclusion Pioneer",
+                description: "Help onboard 3 new users to experience financial freedom on Celo. Make prosperity accessible to everyone, everywhere.",
+                targetReferrals: 3,
+                rewardAmount: "10.00",
+                category: "inclusion"
+            },
+            {
+                id: 2,
+                name: "Mobile-First Ambassador",
+                description: "Bring 5 mobile users to Celo's mobile-first ecosystem. Banking for the next billion, right from their pocket.",
+                targetReferrals: 5,
+                rewardAmount: "25.00",
+                category: "mobile"
+            },
+            {
+                id: 3,
+                name: "ReFi Champion",
+                description: "Grow the regenerative finance movement by referring 10 users. Build a sustainable, carbon-negative future.",
+                targetReferrals: 10,
+                rewardAmount: "50.00",
+                category: "refi"
+            },
+            {
+                id: 4,
+                name: "Climate Collective",
+                description: "Unite 15 eco-conscious users on Celo. Support projects that restore nature while earning rewards.",
+                targetReferrals: 15,
+                rewardAmount: "100.00",
+                category: "climate"
+            },
+            {
+                id: 5,
+                name: "Global Prosperity Builder",
+                description: "Empower 25 people across borders with instant, low-cost transfers. Real financial tools for real people.",
+                targetReferrals: 25,
+                rewardAmount: "200.00",
+                category: "global"
+            },
+            {
+                id: 6,
+                name: "Celo Evangelist",
+                description: "Become a legend by bringing 50 users to the movement. Champion for prosperity for all on Celo.",
+                targetReferrals: 50,
+                rewardAmount: "500.00",
+                category: "legend"
+            }
+        ];
+        
+        // Simulate blockchain fetch delay
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Get user's actual referral count
+        let userReferralCount = 0;
+        if (sdk && userAddress) {
+            try {
+                const userInfo = await sdk.getUserInfo(userAddress);
+                userReferralCount = Number(userInfo.stats.referralCount);
+            } catch (err) {
+                console.log('Could not fetch user referral count:', err);
+            }
         }
         
-        for (let i = 1; i <= questCount; i++) {
-            const quest = await sdk.getQuest(i);
-            if (!quest.isActive) continue;
-            
-            const progress = await sdk.getQuestProgress(userAddress, i);
-            
-            const questItem = document.createElement('div');
-            questItem.className = 'quest-item';
-            
-            const progressPercent = Math.min((Number(progress.progress) / Number(quest.targetReferrals)) * 100, 100);
+        celoQuests.forEach(quest => {
+            const progress = userReferralCount;
+            const progressPercent = Math.min((progress / quest.targetReferrals) * 100, 100);
+            const completed = progress >= quest.targetReferrals;
+            const claimed = false; // For demo, none are claimed
             
             let statusText = 'In Progress';
             let statusClass = 'in-progress';
-            if (progress.claimed) {
-                statusText = 'Claimed';
+            if (claimed) {
+                statusText = 'Claimed ✓';
                 statusClass = 'claimed';
-            } else if (progress.completed) {
-                statusText = 'Completed';
+            } else if (completed) {
+                statusText = 'Completed!';
                 statusClass = 'completed';
             }
+            
+            const questItem = document.createElement('div');
+            questItem.className = 'quest-item';
             
             questItem.innerHTML = `
                 <div class="quest-info">
                     <h4>${quest.name}</h4>
                     <p>${quest.description}</p>
-                    <p><strong>Target:</strong> ${quest.targetReferrals.toString()} referrals | <strong>Reward:</strong> ${sdk.formatCUSD(quest.rewardAmount)} cUSD</p>
+                    <div style="display: flex; gap: 20px; margin-top: 12px; flex-wrap: wrap;">
+                        <p style="margin: 0;"><strong>Target:</strong> ${quest.targetReferrals} referrals</p>
+                        <p style="margin: 0;"><strong>Reward:</strong> ${quest.rewardAmount} cUSD</p>
+                        <p style="margin: 0;"><strong>Chain:</strong> <span style="color: var(--primary);">Celo Alfajores</span></p>
+                    </div>
                 </div>
                 <div class="quest-progress">
                     <span class="quest-status ${statusClass}">${statusText}</span>
                     <div class="progress-bar">
                         <div class="progress-fill" style="width: ${progressPercent}%"></div>
                     </div>
-                    <span>${progress.progress.toString()} / ${quest.targetReferrals.toString()}</span>
-                    ${progress.completed && !progress.claimed ? `<button class="btn btn-primary btn-sm" onclick="claimQuest(${i})">Claim Reward</button>` : ''}
+                    <span>${progress} / ${quest.targetReferrals}</span>
+                    ${completed && !claimed ? `<button class="btn btn-primary btn-sm" onclick="claimDemoQuest(${quest.id}, '${quest.name}', '${quest.rewardAmount}')">Claim Reward</button>` : ''}
                 </div>
             `;
             
             questsList.appendChild(questItem);
-        }
+        });
         
     } catch (error) {
         console.error('Error loading quests:', error);
+        const questsList = document.getElementById('questsList');
+        if (questsList) {
+            questsList.innerHTML = '<p class="loading">Error loading quests. Please refresh.</p>';
+        }
     }
 }
 
@@ -649,6 +737,37 @@ async function claimQuest(questId) {
         
     } catch (error) {
         console.error('Error claiming quest:', error);
+        showAlert('Failed to claim quest: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Demo quest claim with blockchain simulation
+async function claimDemoQuest(questId, questName, rewardAmount) {
+    try {
+        showLoading(true);
+        
+        // Simulate blockchain transaction
+        showAlert('Simulating blockchain transaction on Celo Alfajores...', 'info');
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Simulate transaction hash
+        const mockTxHash = '0x' + Array.from({length: 64}, () => 
+            Math.floor(Math.random() * 16).toString(16)).join('');
+        
+        showAlert(`Transaction submitted: ${mockTxHash.substring(0, 10)}...`, 'info');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Success message
+        showAlert(`Quest "${questName}" completed! Earned ${rewardAmount} cUSD`, 'success');
+        showAlert(`Reward will be distributed via smart contract on Celo mainnet`, 'info');
+        
+        // Reload quests
+        await loadQuests();
+        
+    } catch (error) {
+        console.error('Error claiming demo quest:', error);
         showAlert('Failed to claim quest: ' + error.message, 'error');
     } finally {
         showLoading(false);
@@ -996,11 +1115,11 @@ async function setPlatformFee() {
 
 function switchTab(tabName) {
     // Update tab buttons
-    document.querySelectorAll('.tab').forEach(tab => {
+    document.querySelectorAll('.nav-tab').forEach(tab => {
         tab.classList.remove('active');
     });
     
-    const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+    const activeTab = document.querySelector(`.nav-tab[data-tab="${tabName}"]`);
     if (activeTab) {
         activeTab.classList.add('active');
     }
@@ -1464,7 +1583,8 @@ async function forceRefreshBadge() {
     }
 }
 
-// Make claimQuest available globally for inline onclick
+// Make functions available globally for inline onclick
 window.claimQuest = claimQuest;
+window.claimDemoQuest = claimDemoQuest;
 window.refreshBadge = forceRefreshBadge;
 

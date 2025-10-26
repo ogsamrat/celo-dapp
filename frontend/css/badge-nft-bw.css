@@ -46,7 +46,7 @@
 .nft-artwork {
     position: relative;
     width: 100%;
-    height: 70%;
+    height: 67%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -191,12 +191,12 @@
 /* NFT Info Section - Bottom 30% */
 .nft-info {
     position: relative;
-    padding: 20px 24px;
+    padding: 22px 24px 24px;
     background: #FFFFFF;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    height: 30%;
+    gap: 10px;
+    height: 33%;
     justify-content: center;
 }
 
@@ -215,6 +215,8 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    margin-top: 8px;
+    margin-bottom: 6px;
 }
 
 .nft-collection::before {
@@ -242,6 +244,7 @@
     font-weight: 900;
     letter-spacing: -0.5px;
     line-height: 1.2;
+    margin-bottom: 2px;
 }
 
 /* Stats Row */
@@ -249,7 +252,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 8px;
+    padding-top: 12px;
+    margin-top: 4px;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
@@ -260,20 +264,22 @@
 .nft-stat-item {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
 }
 
 .nft-stat-label {
-    font-size: 9px;
+    font-size: 9.5px;
     text-transform: uppercase;
     letter-spacing: 1px;
     opacity: 0.5;
     font-weight: 700;
+    line-height: 1.2;
 }
 
 .nft-stat-value {
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 900;
+    line-height: 1.1;
     letter-spacing: -0.5px;
 }
 
